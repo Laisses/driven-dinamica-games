@@ -11,6 +11,11 @@ beforeAll(async () => {
     await prisma.game.deleteMany({});
 });
 
+afterAll(async () => {
+    await prisma.game.deleteMany({});
+    await prisma.console.deleteMany({});
+});
+
 describe("GET /games", () => {
     it("should respond with status 200 and an empty list of games if database is empty", async () => {
         const response = await api.get("/games");
