@@ -26,3 +26,19 @@ describe("GET /consoles", () => {
         expect(response.body).toEqual([console]);
     });
 });
+
+describe("GET /consoles/:id", () => {
+    it("should respond with status 404 if no console was found with given id", async () => {
+        const response = await api.get("/consoles/0");
+
+        expect(response.status).toBe(httpStatus.NOT_FOUND);
+    });
+
+    it("should respond with status 200 and an console", async () => {
+        const console = await createNewConsole();
+        const response = await api.get(`/consoles/${console.id}`);
+
+        expect(response.status).toBe(httpStatus.OK);
+        expect(response.body).toEqual(console);
+    });
+});
