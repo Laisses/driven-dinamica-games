@@ -13,3 +13,14 @@ export const createNewGame = async (consoleId: number) => {
 export const unprocessableGame = {
     title: faker.datatype.number,
 };
+
+export const gameWithConsoleIdInvalid = {
+    title: faker.name.fullName(), consoleId: 0
+};
+
+export const createValidGameBody = (consoleId: number) => {
+    return {
+        title: faker.name.fullName(),
+        consoleId
+    };
+};

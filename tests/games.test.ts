@@ -2,8 +2,8 @@ import app from "../src/app";
 import supertest from "supertest";
 import httpStatus from "http-status";
 import prisma from "../src/config/database";
-import { createNewGame } from "./factories/game-factory";
-import { createNewConsole, unprocessableConsole, newConsole } from "./factories/console-factory";
+import { createNewGame, unprocessableGame, gameWithConsoleIdInvalid, createValidGameBody } from "./factories/game-factory";
+import { createNewConsole } from "./factories/console-factory";
 
 const api = supertest(app);
 
@@ -43,5 +43,37 @@ describe("GET /games/:id", () => {
 
         expect(response.status).toBe(httpStatus.OK);
         expect(response.body).toEqual(game);
+    });
+});
+
+describe("POST /games", () => {
+    it("should respond with status 422 when body is not valid", async () => {
+        const response = await api.post("/games").send(unprocessableGame);
+
+        expect(response.status).toBe(httpStatus.UNPROCESSABLE_ENTITY);
+    });
+
+    it("should respond with status 409 if game title is already registered", async () => {
+        const newConsole = await createNewConsole();
+        const newGame = await createNewGame(newConsole.id);
+
+        const response = await api.post("/games").send({title: newGame.title, consoleId: newGame.consoleId});
+
+        expect(response.status).toBe(httpStatus.CONFLICT);
+    });
+
+    it("should respond with status 409 if consoleId does not exist", async () => {
+        const response = await api.post("/games").send(gameWithConsoleIdInvalid);
+
+        expect(response.status).toBe(httpStatus.CONFLICT);
+    });
+
+    it("should respond with status 201 if game was created with success", async () => {
+        const newConsole = await createNewConsole();
+        const newGame = createValidGameBody(newConsole.id);
+
+        const response = await api.post("/games").send(newGame);
+
+        expect(response.status).toBe(httpStatus.CREATED);
     });
 });
