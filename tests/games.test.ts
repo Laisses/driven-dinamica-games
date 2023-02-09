@@ -28,3 +28,20 @@ describe("GET /games", () => {
         expect(response.body).toEqual([{...game, Console: newConsole}]);
     });
 });
+
+describe("GET /games/:id", () => {
+    it("should respond with status 404 if no game was found with given id", async () => {
+        const response = await api.get("/games/0");
+        expect(response.status).toBe(httpStatus.NOT_FOUND);
+    });
+
+    it("should respond with status 200 and the requested game", async () => {
+        const newConsole = await createNewConsole();
+        const game = await createNewGame(newConsole.id);
+
+        const response = await api.get(`/games/${game.id}`);
+
+        expect(response.status).toBe(httpStatus.OK);
+        expect(response.body).toEqual(game);
+    });
+});
