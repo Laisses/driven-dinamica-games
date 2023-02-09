@@ -9,4 +9,10 @@ export const createNewConsole = async () => {
     });
 };
 
+export const unprocessableConsole = {
+    name: true,
+};
 
+export const newConsole = {
+    name: faker.name.firstName()
+};

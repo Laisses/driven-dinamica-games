@@ -2,7 +2,7 @@ import app from "../src/app";
 import supertest from "supertest";
 import httpStatus from "http-status";
 import prisma from "../src/config/database";
-import { createNewConsole } from "./factories/console-factory";
+import { createNewConsole, unprocessableConsole, newConsole } from "./factories/console-factory";
 
 const api = supertest(app);
 
@@ -40,5 +40,24 @@ describe("GET /consoles/:id", () => {
 
         expect(response.status).toBe(httpStatus.OK);
         expect(response.body).toEqual(console);
+    });
+});
+
+describe("POST /consoles", () => {
+    it("should respond with status 422 when body is not valid", async () => {
+        const response = await api.post("/consoles").send(unprocessableConsole);
+        expect(response.status).toBe(httpStatus.UNPROCESSABLE_ENTITY);
+    });
+
+    it("should respond with status 409 if name is already registered", async () => {
+        const console = await createNewConsole();
+        const response = await api.post("/consoles").send({ name: console.name });
+
+        expect(response.status).toBe(httpStatus.CONFLICT);
+    });
+
+    it("should respond with status 201 when console is created with success", async () => {
+        const response = await api.post("/consoles").send(newConsole);
+        expect(response.status).toBe(httpStatus.CREATED);
     });
 });
